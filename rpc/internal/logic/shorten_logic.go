@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/dfang/shorturl/rpc/internal/svc"
+	"github.com/dfang/shorturl/rpc/model"
 	"github.com/dfang/shorturl/rpc/transform"
 
+	"github.com/zeromicro/go-zero/core/hash"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -24,7 +26,16 @@ func NewShortenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ShortenLo
 }
 
 func (l *ShortenLogic) Shorten(in *transform.ShortenRequest) (*transform.ShortenResponse, error) {
-	// todo: add your logic here and delete this line
+	key := hash.Md5Hex([]byte(in.Url))[:6]
+	_, err := l.svcCtx.Model.Insert(l.ctx, &model.Shorturl{
+		Shorten: key,
+		Url:     in.Url,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return &transform.ShortenResponse{}, nil
+	return &transform.ShortenResponse{
+		Shorten: key,
+	}, nil
 }
